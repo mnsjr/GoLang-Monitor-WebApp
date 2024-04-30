@@ -1,6 +1,0 @@
-_online: false - site:https://www.linkedin.com/in/mnsjr
-_online: true - site:https://github.com/mnsjr/
-_online: true - site:https://react-jest-sorteador-de-amigo-secreto.vercel.app/
-_online: false - site:https://www.linkedin.com/in/mnsjr
-_online: true - site:https://github.com/mnsjr/
-_online: true - site:https://react-jest-sorteador-de-amigo-secreto.vercel.app/

@@ -14,7 +14,6 @@ import (
 )
 
 const monitorCount = 6
-// const delay = 5 * time.Second
 const delay = 10
 	
 func main(){
@@ -131,7 +130,7 @@ func writeLog(site string, status bool) {
 		launchError("Error while writing log!", err)
 	}
 
-	file.WriteString("_online: " + strconv.FormatBool(status) + " - site:" + site + "\n")
+	file.WriteString(time.Now().Format("02/01/2006 15:04:05") + " - " + "online: " + strconv.FormatBool(status) + " - site:" + site + "\n")
 
 	file.Close()
 }
