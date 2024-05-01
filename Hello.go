@@ -6,15 +6,17 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
-	"strconv"
 )
 
-const monitorCount = 6
-const delay = 10
+var monitorCount = 1
+var delay = 1
+const version = 1.1
 	
 func main(){
 	showIntroduction()
@@ -29,7 +31,7 @@ func main(){
 		case 2:
 			fmt.Println("---<<< Extrating Logs...")
 		case 3:
-			fmt.Println("---<<< Program End!")
+			fmt.Println("---<<< Program End! >>>---")
 			os.Exit(0)
 		default:
 			fmt.Println("Command not recognized!")
@@ -39,16 +41,21 @@ func main(){
 }
 
 func showIntroduction() {
-	version := 1.1
+	fmt.Println("")
+	fmt.Println("███   ███  ███    ██  ███████  ██████  ███████")
+	fmt.Println("████ ████  ████   ██  ██           ██  ██   ██")
+	fmt.Println("██ ███ ██  ██  ██ ██  ███████      ██  ██ ██")
+	fmt.Println("██  █  ██  ██   ████       ██  ██  ██  ██  ██")
+	fmt.Println("██     ██  ██    ███  ███████   ████   ██   ██ _v",version)
+	fmt.Println("")
 	fmt.Println("Hello There!")
-	fmt.Println("This program is on", version, "version.")
-	fmt.Println("What would you like to do?")
 	fmt.Println("")
 }
 
 func showOptions() {
-	fmt.Println("1- Monitoring Start")
-	fmt.Println("2- Show logs")
+	fmt.Println("What would you like to do?")
+	fmt.Println("1- Monitoring")
+	fmt.Println("2- Show logs history")
 	fmt.Println("3- Program exit")
 	fmt.Println("")
 }
@@ -56,14 +63,37 @@ func showOptions() {
 func readComand() int {
 	var comand int
 	fmt.Scan(&comand) // neste contexto o & é um ponteiro para a memória
-	fmt.Println("Command selected:", comand)
+	// fmt.Println("Command selected:", comand)
 	fmt.Println("")
-
 	return comand
+}
+
+func setTimesMonitoring(){
+	var monitorTimes int
+	fmt.Println("How many times do you want to monitor?")
+	fmt.Scan(&monitorTimes)
+	fmt.Println("")
+	monitorCount = monitorTimes
+}
+
+func setDelayMonitoring(){
+	var delayMinutes int
+	fmt.Println("How many minutes between each monitoring?")
+	fmt.Scan(&delayMinutes)
+	fmt.Println("")
+	delay = delayMinutes
 }
 
 func startMonitoring() {
 	fmt.Println("---<<< Monitoring >>>---")
+	fmt.Println("")
+
+	setTimesMonitoring()
+	setDelayMonitoring()
+
+	fmt.Println("Monitoring Configs:", "run", monitorCount, "times", "with", delay, "minutes delay.")
+	fmt.Println("")
+	fmt.Println("---<<< Monitoring Start")
 	fmt.Println("")
 
 	sites := getSitesFromFile()
@@ -75,8 +105,8 @@ func startMonitoring() {
 		for i, site := range sites {
 			testSite(i, site)
 		}
-		time.Sleep(delay * time.Minute)
 		fmt.Println("")
+		time.Sleep(time.Duration(delay) * time.Minute)
 	}	
 	fmt.Println("---<<< Monitoring completed! >>>---")
 	fmt.Println("")
@@ -133,6 +163,16 @@ func writeLog(site string, status bool) {
 	file.WriteString(time.Now().Format("02/01/2006 15:04:05") + " - " + "online: " + strconv.FormatBool(status) + " - site:" + site + "\n")
 
 	file.Close()
+}
+
+func recoverLogs() {
+	file, err := ioutil.ReadFile("logs.txt")
+
+	if err != nil {
+		launchError("Error while reading log!", err)
+	}
+
+	fmt.Println((file))
 }
 
 func launchError(errorMessage string, errorSistem error) {
