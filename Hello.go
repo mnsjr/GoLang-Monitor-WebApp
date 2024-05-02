@@ -6,7 +6,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"io/ioutil"
+	// "io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
@@ -30,6 +30,7 @@ func main(){
 			startMonitoring()
 		case 2:
 			fmt.Println("---<<< Extrating Logs...")
+			recoverLogs()
 		case 3:
 			fmt.Println("---<<< Program End! >>>---")
 			os.Exit(0)
@@ -148,7 +149,7 @@ func testSite(i int, site string) {
 		fmt.Println("---<<< Site", i + 1, "up!", site)
 		writeLog(site, true)
 	} else {
-		fmt.Println("---<<< Site down!, StatusCode:", res.StatusCode, "URL:", site)
+		fmt.Println("---<<< Site", i + 1, "down!, StatusCode:", res.StatusCode, "URL:", site)
 		writeLog(site, false)
 	}
 }
@@ -166,13 +167,13 @@ func writeLog(site string, status bool) {
 }
 
 func recoverLogs() {
-	file, err := ioutil.ReadFile("logs.txt")
+	file, err := os.ReadFile("logs.txt")
 
 	if err != nil {
 		launchError("Error while reading log!", err)
 	}
 
-	fmt.Println((file))
+	fmt.Println(string(file))
 }
 
 func launchError(errorMessage string, errorSistem error) {
