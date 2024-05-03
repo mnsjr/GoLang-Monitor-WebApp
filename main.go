@@ -6,12 +6,12 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	// "io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"time"
+	"log"
 )
 
 var monitorCount = 1
@@ -27,18 +27,38 @@ func main(){
 
 		switch comand {
 		case 1:
-			startMonitoring()
+			fmt.Println("---<<< Cleaning Old Logs >>>---")
+			fmt.Println("")
+			fmt.Println("---<<< Dropping logs...")
+			loading()
+			deleteOldLogs()
 		case 2:
-			fmt.Println("---<<< Extrating Logs...")
-			recoverLogs()
+			fmt.Println("---<<< Monitoring >>>---")
+			fmt.Println("")
+			startMonitoring()
 		case 3:
-			fmt.Println("---<<< Program End! >>>---")
-			os.Exit(0)
+			fmt.Println("---<<< Show logs history >>>---")
+			fmt.Println("")
+			fmt.Println("---<<< Extrating Logs...")
+			loading()
+			recoverLogs()
+		case 0:
+			exitProgram()
 		default:
 			fmt.Println("Command not recognized!")
 			os.Exit(-1)
-		}
+		 }
 	}
+} 
+
+func exitProgram() {
+	fmt.Println(" ███  █ ██ ███   ███  █ ██ ███")
+	fmt.Println(" █  █ █ █  █     █  █ █ █  █  ")
+	fmt.Println(" ███  ██   ██    ███  ██   ██ ")
+	fmt.Println(" █  █ █    █     █  █ █    █  ")
+	fmt.Println(" ███  ██   ███   ███  ██   ███ see you!.")
+	fmt.Println("")
+	os.Exit(0)
 }
 
 func showIntroduction() {
@@ -55,9 +75,10 @@ func showIntroduction() {
 
 func showOptions() {
 	fmt.Println("What would you like to do?")
-	fmt.Println("1- Monitoring")
-	fmt.Println("2- Show logs history")
-	fmt.Println("3- Program exit")
+	fmt.Println("1- Delete old logs")
+	fmt.Println("2- Monitoring")
+	fmt.Println("3- Show logs history")
+	fmt.Println("0- Program exit")
 	fmt.Println("")
 }
 
@@ -86,9 +107,6 @@ func setDelayMonitoring(){
 }
 
 func startMonitoring() {
-	fmt.Println("---<<< Monitoring >>>---")
-	fmt.Println("")
-
 	setTimesMonitoring()
 	setDelayMonitoring()
 
@@ -172,8 +190,100 @@ func recoverLogs() {
 	if err != nil {
 		launchError("Error while reading log!", err)
 	}
-
+	fmt.Println("")
 	fmt.Println(string(file))
+}
+
+func deleteOldLogs() {
+	filePath := "logs.txt"
+	file, err := os.OpenFile(filePath, os.O_RDWR, 0644)
+	if err != nil {
+		log.Fatalf("Error opening file: %v", err)
+	}
+	defer file.Close()
+
+
+	// ---<<< Get the current date and subtract 2 days >>>---
+	now := time.Now()
+	period := now.AddDate(0, 0, -2)
+
+	// ---<<< Subtract 2 months from the current date to get the deadline >>>---
+	// now := time.Now()
+	// period = now.AddDate(0, -2, 0)
+
+
+	// Create a new temporary file to store valid lines
+	tempFilePath := "logs_temp.txt"
+	tempFile, err := os.Create(tempFilePath)
+	if err != nil {
+		log.Fatalf("Error creating temp file: %v", err)
+	}
+	defer tempFile.Close()
+
+	// Create a scanner to read the log file line by line
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		dateStr := strings.Fields(line)[0] // Extract the date part of the line
+		date, err := time.Parse("02/01/2006", dateStr) // Parse date
+		if err != nil {
+			fmt.Printf("Error parsing date: %v\n", err)
+			continue // Ignore the line if the date cannot be parsed
+		}
+		
+		// Compare the log date with the deadline (period)
+		if date.After(period) {
+			// If the log date is later than period, write to the temporary file
+			_, err := tempFile.WriteString(line + "\n")
+			if err != nil {
+				log.Fatalf("Error writing temp file: %v", err)
+			}
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatalf("Error reading logs file: %v", err)
+	}
+
+	if err := file.Close(); err != nil {
+		log.Fatalf("Error closing original file: %v", err)
+	}
+
+	if err := os.Rename(tempFilePath, filePath); err != nil {
+		log.Fatalf("Error renaming temp file: %v", err)
+	}
+	fmt.Println("")
+	fmt.Println("---<<< Old logs deleted successfully! >>>---")
+	fmt.Println("")
+}
+
+func loading(){
+	// Open the loading messages file
+	filePath := "loading_messages.txt"
+	file, err := os.Open(filePath)
+	if err != nil {
+		fmt.Printf("Error opening file %s: %v\n", filePath, err)
+		return
+	}
+	defer file.Close()
+
+	// Read loading messages from the file
+	messages := make([]string, 0)
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		messages = append(messages, scanner.Text())
+	}
+
+	if err := scanner.Err(); err != nil {
+		fmt.Printf("Error reading file %s: %v\n", filePath, err)
+		return
+	}
+	
+	for _, message := range messages {
+		fmt.Printf("\r%s", message) // Clear the previous line
+		time.Sleep(1300 * time.Millisecond)
+	}
+	fmt.Println("")
 }
 
 func launchError(errorMessage string, errorSistem error) {
