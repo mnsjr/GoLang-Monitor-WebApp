@@ -5,3 +5,7 @@
 01/05/2024 15:17:01 - online: true - site:https://github.com/mnsjr/
 01/05/2024 15:17:01 - online: true - site:https://react-jest-sorteador-de-amigo-secreto.vercel.app/
 01/05/2024 15:17:30 - online: false - site:https://www.linkedin.com/in/mnsjr
+03/05/2024 23:17:09 - online: false - site:https://www.linkedin.com/in/mnsjr
+03/05/2024 23:17:10 - online: true - site:https://github.com/mnsjr/
+03/05/2024 23:17:10 - online: true - site:https://google.com/
+03/05/2024 23:17:10 - online: true - site:https://react-jest-sorteador-de-amigo-secreto.vercel.app/

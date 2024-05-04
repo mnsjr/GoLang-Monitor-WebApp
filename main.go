@@ -120,7 +120,7 @@ func startMonitoring() {
 	// First for is monitoring the URLs count times
 	// and testing each site each 10 minutes
 	for i := 0 ; i < monitorCount ; i++ {
-		fmt.Println("---<<< Monitoring", i+1,"/", monitorCount, "next rout in", delay, "minutes...")
+		fmt.Println("---<<< Monitoring", i+1,"/", monitorCount, "next round in", delay, "minutes...")
 		for i, site := range sites {
 			testSite(i, site)
 		}
